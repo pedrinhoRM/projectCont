@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado do Financiamento</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #1e3799;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .resultado-container {
+            max-width: 600px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border: 2px solid #1e3799;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .resultado-text {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .success-text {
+            color: #2ecc71;
+        }
+
+        .error-text {
+            color: #d63031;
+        }
+
+        .detalhes-financiamento {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            background-color: #f0f0f0;
+        }
+
+        .valor {
+            font-weight: bold;
+        }
+
+        .valor-positivo {
+            color: #2ecc71;
+        }
+
+        .valor-negativo {
+            color: #d63031;
+        }
+    </style>
+</head>
+<body>
+    <h1>Resultado do Calculo</h1>
+
+    <div class="resultado-container">
+        {% if error_message %}
+            <p class="resultado-text error-text">Erro: {{ error_message }}</p>
+        {% else %}
+            <p class="resultado-text success-text">Informações do seu contrato:</p>
+
+            <div class="detalhes-financiamento">
+                <h2>Detalhes do Financiamento:</h2>
+                <ul>
+                    <li>
+                        Valor Emprestado: R$ <span class="{% if valor_financiado >= 0 %}valor-positivo{% else %}valor-negativo{% endif %}">{{ valor_financiado|round(3) }}</span>
+                    </li>
+                    <li>
+                        Total a Pagar: R$ <span class="{% if total_financiado >= 0 %}valor-positivo{% else %}valor-negativo{% endif %}">{{ total_financiado|round(3) }}</span>
+                    </li>
+                    <li>
+                        Juros a Pagar: R$ <span class="valor-negativo">{{ juros|round(3) }}</span>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+

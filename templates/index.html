@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Financiamento para Advogados</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #ecf0f1;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between; /* Garante espaço entre o cabeçalho, formulário e rodapé */
+            min-height: 100vh;
+        }
+
+        header {
+            background: #3498db;
+            color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .header-buttons a {
+            background-color: #3498db;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-buttons a:hover {
+            background: #2980b9;
+        }
+
+        .contacts-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .contacts-option img {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+
+        .contacts-dropdown {
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .contacts-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #3498db;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .contacts-dropdown:hover .contacts-dropdown-content {
+            display: block;
+        }
+
+        .contacts-dropdown-content a {
+            color: #ffffff;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .contacts-dropdown-content a:hover {
+            background-color: #2980b9;
+        }
+
+        .form-container {
+            width: 70%; /* Ajuste a largura conforme necessário */
+            margin: -15px auto;
+        }
+
+        .footer {
+        text-align: center;
+        padding: 20px;
+        background: #2c3e50;
+        color: #ffffff;
+        width: 100%;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        /* Remova a propriedade "position: relative;" */
+        /* Adicione a propriedade "z-index: 1;" para garantir que o rodapé fique sobre outros elementos, se necessário */
+        z-index: 1;
+        }   
+
+        .footer p {
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .footer img {
+            max-width: 200px;
+            height: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Calculadora de Financiamento para Advogados</h1>
+        <div class="header-buttons">
+            <a href="#">Contatos</a>
+            <a href="#">Início</a>
+            <a href="#">Sobre Nós</a>
+            <a href="#">Serviços</a>
+        </div>
+    </header>
+
+    <div class="form-container">
+        <form action="/calcular_financiamento" method="post">
+        <div style="width: 100%;">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" name="nome" required placeholder="(Obrigatório)">
+        </div>
+
+        <div style="width: calc(50% - 10px);">
+            <label for="celular">Número de Celular:</label>
+            <input type="number" id="celular" name="celular" required placeholder="(XX) XXXXXXXX" maxlength="11">        
+        </div>
+
+        <div style="width: calc(50% - 10px);">
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" required placeholder="(Opcional)">
+        </div>
+
+        <div style="width: 100%; display: flex; gap: 20px;">
+            <div style="width: calc(50% - 10px);">
+                <label for="valor_prestacao">Valor da Prestação:</label>
+                <input type="text" id="valor_prestacao" name="valor_prestacao" pattern="[0-9]+([,.][0-9]+)?"
+                    title="Informe um valor válido" required oninput="formatarNumeroDecimal(this)">
+            </div>
+
+            <div style="width: calc(50% - 10px);">
+                <label for="numero_prestacoes">Número de Prestações:</label>
+                <input type="number" id="numero_prestacoes" name="numero_prestacoes" required>
+            </div>
+        </div>
+
+        <div style="width: 100%; display: flex; gap: 20px;">
+            <div style="width: calc(50% - 10px);">
+                <label for="taxa_mensal">Taxa de Juros Mensal (%):</label>
+                <input type="text" id="taxa_mensal" name="taxa_mensal" pattern="[0-9]+([,.][0-9]+)?"
+                    title="Informe um valor válido" required oninput="formatarNumeroDecimal(this)">
+            </div>
+
+            <div style="width: calc(50% - 10px);">
+                <label for="ano_mes_contrato">Ano e Mês do Contrato:</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="ano_contrato" name="ano_contrato" required>
+                        {% for year in range(current_year - 5, current_year + 1) %}
+                        <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <select id="mes_contrato" name="mes_contrato" required>
+                        {% for month in range(1, 13) %}
+                        <option value="{{ month }}">{{ nome_mes(month) }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="tipo-contrato">
+            <label for="tipo_contrato">Tipo de Contrato:</label>
+            <select id="tipo_contrato" name="tipo_contrato" required>
+                <option value="CreditoPessoalNaoConsignado">Pessoas físicas - Crédito pessoal não consignado</option>
+                <option value="CreditoPessoalNaoConsignadoVinculado">Pessoas físicas - Crédito pessoal não consignado vinculado à composição de dívidas</option>
+                <option value="CreditoPessoalConsignadoINSS">Crédito pessoal consignado para aposentados e pensionistas do INSS</option>
+                <option value="CreditoPessoalConsignadoTotal">Crédito pessoal consignado total</option>
+                <option value="AquisicaoVeiculos">Pessoas físicas - Aquisição de veículos</option>
+            </select>
+        </div>
+
+        <button type="submit">Calcular Financiamento</button>
+
+        <div class="footer">
+            <p>Rua Advogado, 123 - Cidade Jurídica - Tel: (XX) XXXX-XXXX</p>
+            <img src="{{ url_for('static', filename='logoazul.png') }}" alt="Logo da Empresa">
+        </div>
+    
+        <script>
+            function formatarNumeroDecimal(input) {
+                const valor = input.value.replace(/\D/g, '');
+                input.value = (parseFloat(valor) / 100).toFixed(2).replace('.', ',');
+            }
+        </script>
+    </body>
+    </html>
